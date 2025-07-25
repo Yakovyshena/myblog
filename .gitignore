@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Flask
+.flaskenv
+instance/
+*.db
+
+# Logs
+logs/
+*.log
+
+# Virtualenv
+venv/
+
+# Migrations cache
+*.sqlite3
+*.pid
