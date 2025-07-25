@@ -13,7 +13,6 @@ from datetime import datetime, timezone
 def index(): 
     return render_template('index.html', title='Home Page')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -50,7 +49,6 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form) 
 
-
 @app.route('/user/<username>')
 @login_required
 def user(username):
@@ -70,7 +68,7 @@ def before_request():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
