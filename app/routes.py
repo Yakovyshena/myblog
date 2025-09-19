@@ -3,13 +3,19 @@ from urllib.parse import urlsplit
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy as sa
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm
 from app.models import User
 from datetime import datetime, timezone
 
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen == datetime.now(timezone.utc)
+        db.session.commit()
+
 @app.route('/')
 @app.route('/index')
-@login_required
+@login_required # Сhecks current_user.is_authenticated. __init__.py contains the info about the redirection page
 def index(): 
     return render_template('index.html', title='Home Page')
 
@@ -23,9 +29,9 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
+        login_user(user, remember=form.remember_me.data) # Flask-Login writes user.id to the session. When a new request comes in, Flask-Login retrieves this id from the session. To get a User object from the id, the load_user function is needed.
         next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
+        if not next_page or urlsplit(next_page).netloc != '': # to check that request.args.get('next') doesn't contains any domains
             next_page = url_for('index')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
@@ -57,13 +63,8 @@ def user(username):
         {'author': user, 'body': 'Test post #1'},
         {'author': user, 'body': 'Test post #2'}
     ]
-    return render_template('user.html', user=user, posts=posts)
-
-@app.before_request
-def before_request():
-    if current_user.is_authenticated:
-        current_user.last_seen == datetime.now(timezone.utc)
-        db.session.commit()
+    form = EmptyForm()
+    return render_template('user.html', user=user, posts=posts, form=form)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -80,3 +81,40 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile', form=form)
 
+@app.route('/follow/<username>', methods=['POST'])
+@login_required
+def follow(username):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        user = db.session.scalar(sa.select(User).where(User.username == username))
+        if user is None:
+            flash(f'User {username} is not found.')
+            return redirect(url_for('index'))
+        if user == current_user: # "==" compares IDs; "is" checks object identity (may differ for the same DB row)
+            flash("You can't follow yourself!")
+            return redirect(url_for('index'))
+        current_user.follow(user)
+        db.session.commit()
+        flash(f'You are following {username}!')
+        return redirect(url_for('user', username=username))
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/unfollow/<username>', methods=['POST'])
+@login_required
+def unfollow(username):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        user = db.session.scalar(sa.select(User).where(User.username == username))
+        if user is None:
+            flash(f'User {username} is not found')
+            return redirect(url_for('index'))
+        if user == current_user:
+            flash("You can't unfollow yourself!")
+            return redirect(url_for('index'))
+        current_user.unfollow(user)
+        db.session.commit()
+        flash(f'You are not following {username}.')
+        return redirect(url_for('user', username=username))
+    else:
+        return redirect(url_for('index'))

@@ -7,9 +7,9 @@ from app import db, login
 from flask_login import UserMixin
 from hashlib import md5
 
-@login.user_loader
-def load_user(id):
-    return db.session.get(User, int(id))
+@login.user_loader # callback function registration in Flask-Login. Flask-Login calls this function whenever it needs to retrieve a user by their ID. It should return a user object or None.
+def load_user(id): 
+    return db.session.get(User, int(id)) # Flask-Login substitutes this object into current_user
 
 followers = sa.Table(
     'followers',
@@ -18,7 +18,7 @@ followers = sa.Table(
     sa.Column('followed_id', sa.Integer, sa.ForeignKey('user.id'), primary_key=True)
 )
 
-class User(UserMixin, db.Model): #UserMixin implements methods - is_authenticated, is_active, is_anonymous, get_id()
+class User(UserMixin, db.Model): # UserMixin implements methods - is_authenticated, is_active, is_anonymous, get_id()
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
@@ -53,7 +53,7 @@ class User(UserMixin, db.Model): #UserMixin implements methods - is_authenticate
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
     
     def is_following(self, user):
-        query = self.followers.select().where(User.id == user.id)
+        query = self.following.select().where(User.id == user.id)
         return db.session.scalar(query) is not None
 
     def follow(self, user):

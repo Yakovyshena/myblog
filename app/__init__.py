@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app) 
 migrate = Migrate(app, db) 
-login = LoginManager(app)
-login.login_view = 'login' #redirection point for an unauthorized user when trying to access a page that requires login
+login = LoginManager(app) 
+login.login_view = 'login' # if it's not specified, HTTP 401 Unauthorized will be displayed instead of redirecting to the login page
 
 if not app.debug:
     # Set up email logging

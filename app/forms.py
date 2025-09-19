@@ -18,11 +18,11 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
+    #validators
     def validate_username(self, username): # Це спеціальний метод Flask-WTF. Якщо є метод з назвою validate_<назва_поля>, він буде автоматично викликаний при валідації форми.
         user = db.session.scalar(sa.select(User).where(User.username == username.data))
         if user is not None:
             raise ValidationError("Please use a different username.")
-        
     def validate_email(self, email):
         user = db.session.scalar(sa.select(User).where(User.email == email.data))
         if user is not None:
@@ -37,8 +37,12 @@ class EditProfileForm(FlaskForm):
         super().__init__(*args, **kwargs)
         self.original_username = original_username
 
+    #validator
     def validate_username(self, username):
         if username.data != self.original_username:
             user = db.session.scalar(sa.select(User).where(User.username == username.data))
             if user is not None:
                 raise ValidationError('Please use a different username.')
+            
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
