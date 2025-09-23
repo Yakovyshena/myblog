@@ -17,3 +17,5 @@ venv/
 # Migrations cache
 *.sqlite3
 *.pid
+
+settings.json
