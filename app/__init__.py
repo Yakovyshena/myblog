@@ -7,6 +7,10 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_mail import Mail
+
+# from dotenv import load_dotenv
+# load_dotenv()
 
 app = Flask(__name__) 
 app.config.from_object(Config)
@@ -14,6 +18,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db) 
 login = LoginManager(app) 
 login.login_view = 'login' # if it's not specified, HTTP 401 Unauthorized will be displayed instead of redirecting to the login page
+mail = Mail(app)
+
 
 if not app.debug:
     # Set up email logging
@@ -30,7 +36,7 @@ if not app.debug:
             toaddrs=app.config['ADMINS'], 
             subject='Microblog Failure',
             credentials=auth, 
-            secure=secure)
+            secure=secure)        
         mail_handler.setLevel(logging.ERROR) #send emails only for logs at ERROR level or higher
         app.logger.addHandler(mail_handler)
 

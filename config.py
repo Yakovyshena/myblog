@@ -13,3 +13,4 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['testmail.syak@gmail.com']
+    #msg = Message('test subject', sender=app.config['ADMINS'][0], recipients=['testmail.syak@gmail.com'])

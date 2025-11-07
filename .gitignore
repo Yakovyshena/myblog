@@ -18,4 +18,4 @@ venv/
 *.sqlite3
 *.pid
 
-settings.json
+.vscode/
