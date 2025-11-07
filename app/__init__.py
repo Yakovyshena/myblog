@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_moment import Moment
 
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -19,6 +20,7 @@ migrate = Migrate(app, db)
 login = LoginManager(app) 
 login.login_view = 'login' # if it's not specified, HTTP 401 Unauthorized will be displayed instead of redirecting to the login page
 mail = Mail(app)
+moment = Moment(app)
 
 
 if not app.debug:
