@@ -11,6 +11,7 @@ instance/
 logs/
 *.log
 
+*.cpp
 # Virtualenv
 venv/
 
