@@ -9,9 +9,6 @@ from hashlib import md5
 import jwt
 from time import time
  
-
-
- 
 @login.user_loader # callback function registration in Flask-Login. Flask-Login calls this function whenever it needs to retrieve a user by their ID. It should return a user object or None.
 def load_user(id): # more details in routes.py 56
     return db.session.get(User, int(id)) # Flask-Login substitutes this object into current_user
