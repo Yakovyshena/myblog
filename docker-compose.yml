@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    networks:
+      - myblog-network
+
+  web:
+    build: .
+    container_name: myblog
+    restart: always
+    ports:
+      - "8000:5000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      MAIL_SERVER: ${MAIL_SERVER}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USE_TLS: ${MAIL_USE_TLS}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+    depends_on:
+      - db
+    networks:
+      - myblog-network
+
+
+networks:
+  myblog-network:       
+    driver: bridge
+
+
+volumes:
+  mysql_data:
